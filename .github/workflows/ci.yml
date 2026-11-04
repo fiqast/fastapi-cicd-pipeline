@@ -33,10 +33,11 @@ jobs:
         run: docker build -t fastapi-cicd-pipeline:ci .
 
       - name: Scan image with Trivy
-        uses: aquasecurity/trivy-action@v0.36.0
-        with:
-          image-ref: fastapi-cicd-pipeline:ci
-          format: table
-          severity: CRITICAL
-          ignore-unfixed: true
-          exit-code: "1"
+        run: |
+          docker run --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            aquasec/trivy:latest image \
+            --severity CRITICAL \
+            --ignore-unfixed \
+            --exit-code 1 \
+            fastapi-cicd-pipeline:ci
