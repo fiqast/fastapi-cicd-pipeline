@@ -41,3 +41,29 @@ jobs:
             --ignore-unfixed \
             --exit-code 1 \
             fastapi-cicd-pipeline:ci
+
+    publish:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/fiqast/fastapi-cicd-pipeline:latest
+            ghcr.io/fiqast/fastapi-cicd-pipeline:${{ github.sha }}
