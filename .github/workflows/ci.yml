@@ -42,9 +42,39 @@ jobs:
             --exit-code 1 \
             fastapi-cicd-pipeline:ci
 
-  publish:
+  loadtest:
     runs-on: ubuntu-latest
     needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Build and start app
+        run: |
+          docker build -t fastapi-cicd-pipeline:ci .
+          docker run -d --name app -p 8000:8000 fastapi-cicd-pipeline:ci
+          for i in $(seq 1 15); do
+            curl -fs http://localhost:8000/health && break
+            sleep 2
+          done
+
+      - name: Run load test
+        run: |
+          pip install locust
+          locust -f loadtest/locustfile.py --headless \
+            -u 20 -r 5 -t 20s \
+            --host http://localhost:8000
+
+      - name: Stop app
+        if: always()
+        run: docker rm -f app
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: loadtest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     permissions:
       contents: read
