@@ -1,7 +1,16 @@
 services:
-  app:
-    image: ghcr.io/fiqast/fastapi-cicd-pipeline:latest
-    container_name: fastapi-app
+  nginx:
+    image: nginx:alpine
     ports:
-      - "8080:8000"
+      - "8080:80"
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+    restart: unless-stopped
+
+  app-blue:
+    image: ghcr.io/fiqast/fastapi-cicd-pipeline:latest
+    restart: unless-stopped
+
+  app-green:
+    image: ghcr.io/fiqast/fastapi-cicd-pipeline:latest
     restart: unless-stopped

@@ -104,15 +104,13 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
       - uses: actions/checkout@v4
+        with:
+          clean: false
 
-      - name: Deploy with docker compose
+      - name: Deploy (blue-green)
         shell: powershell
-        run: |
-          docker compose pull
-          docker compose up -d
+        run: ./deploy.ps1
 
       - name: Health check
         shell: powershell
-        run: |
-          Start-Sleep -Seconds 5
-          Invoke-RestMethod http://localhost:8080/health   
+        run: Invoke-RestMethod http://localhost:8080/health
