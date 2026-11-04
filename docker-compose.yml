@@ -1,0 +1,7 @@
+services:
+  app:
+    image: ghcr.io/fiqast/fastapi-cicd-pipeline:latest
+    container_name: fastapi-app
+    ports:
+      - "8080:8000"
+    restart: unless-stopped

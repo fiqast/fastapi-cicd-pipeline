@@ -67,3 +67,22 @@ jobs:
           tags: |
             ghcr.io/fiqast/fastapi-cicd-pipeline:latest
             ghcr.io/fiqast/fastapi-cicd-pipeline:${{ github.sha }}
+
+  deploy:
+    runs-on: self-hosted
+    needs: publish
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy with docker compose
+        shell: powershell
+        run: |
+          docker compose pull
+          docker compose up -d
+
+      - name: Health check
+        shell: powershell
+        run: |
+          Start-Sleep -Seconds 5
+          Invoke-RestMethod http://localhost:8080/health   
