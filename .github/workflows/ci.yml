@@ -42,7 +42,7 @@ jobs:
             --exit-code 1 \
             fastapi-cicd-pipeline:ci
 
-    publish:
+  publish:
     runs-on: ubuntu-latest
     needs: build
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
