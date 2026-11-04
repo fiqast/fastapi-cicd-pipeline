@@ -1,3 +1,4 @@
+$ErrorActionPreference = "Continue"
 $active = "none"
 if (Test-Path ".active") { $active = (Get-Content ".active").Trim() }
 $new = if ($active -eq "blue") { "green" } else { "blue" }
